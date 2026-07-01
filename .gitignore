@@ -1,0 +1,24 @@
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Credentials and API files
+config.js
+db.py
+
+# Logs
+*.log
+app.log
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Scratch scripts
+query_users.py

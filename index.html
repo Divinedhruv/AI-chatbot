@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Search</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Premium Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="container" id="mainContainer">
+        <!-- Error & Success alerts (Global to container) -->
+        <div class="error" id="error"></div>
+        <div class="success-alert" id="successAlert"></div>
+
+        <!-- AUTH VIEW -->
+        <div class="auth-wrapper" id="authContainer">
+            <div class="auth-header">
+                <h1>🤖 AI Search</h1>
+                <p>Enter your credentials to continue</p>
+            </div>
+
+            <div class="auth-tabs">
+                <button class="auth-tab active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
+                <button class="auth-tab" id="tabRegister" onclick="switchTab('register')">Sign Up</button>
+            </div>
+
+            <!-- Login Form -->
+            <form id="loginForm" class="auth-form active" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginUser">Username or Email</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon"><i class="fas fa-user"></i></span>
+                        <input type="text" id="loginUser" placeholder="yourusername or email" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" id="loginPassword" placeholder="••••••••" required>
+                    </div>
+                </div>
+                <div class="form-options">
+                    <label class="checkbox-container">
+                        <input type="checkbox" id="rememberMe"> Remember me
+                    </label>
+                </div>
+                <button type="submit" class="submit-btn">Sign In</button>
+            </form>
+
+            <!-- Register Form -->
+            <form id="registerForm" class="auth-form" onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="regUsername">Username</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon"><i class="fas fa-user"></i></span>
+                        <input type="text" id="regUsername" placeholder="choose a username" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="regEmail">Email Address</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon"><i class="fas fa-envelope"></i></span>
+                        <input type="email" id="regEmail" placeholder="you@example.com" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" id="regPassword" placeholder="min 6 characters" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="regPasswordConfirm">Confirm Password</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon"><i class="fas fa-lock"></i></span>
+                        <input type="password" id="regPasswordConfirm" placeholder="re-enter password" required>
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn">Create Account</button>
+            </form>
+        </div>
+
+        <!-- SEARCH VIEW WITH COLLAPSIBLE SIDEBAR -->
+        <div class="search-wrapper" id="searchContainer">
+            <!-- Sidebar (Left Side) -->
+            <div class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-logo">
+                        <div class="logo-icon">
+                            <i class="fas fa-compass"></i>
+                        </div>
+                        <span class="sidebar-title">Search Nav</span>
+                    </div>
+                    <button class="toggle-btn" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="sidebar-actions">
+                    <button class="sidebar-action-btn active" id="dashboardBtn" onclick="showDashboardView()"
+                        title="Dashboard">
+                        <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+                    </button>
+                    <button class="sidebar-action-btn" id="newChatBtn" onclick="startNewChat()" title="New Chat">
+                        <i class="fas fa-plus"></i> <span>New Chat</span>
+                    </button>
+                </div>
+
+                <div class="sidebar-separator">Search History</div>
+
+                <div class="history-search-wrapper">
+                    <span class="history-search-icon"><i class="fas fa-search"></i></span>
+                    <input type="text" id="historySearch" placeholder="Search history..." oninput="filterHistory()">
+                </div>
+
+                <div class="history-box" id="historyBox">
+                    <!-- History items loaded dynamically -->
+                </div>
+
+                <!-- Feedback Button -->
+                <div style="padding: 12px; border-top: 1px solid rgba(255,255,255,0.06); margin-top: auto;">
+                    <button class="sidebar-action-btn" onclick="openFeedbackModal()" title="Send Feedback" style="width: 100%; justify-content: center; gap: 8px; background: rgba(251, 191, 36, 0.06); border: 1px solid rgba(251, 191, 36, 0.15); color: #fbbf24;">
+                        <i class="fas fa-comment-alt"></i> <span>Send Feedback</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Chat Main Area (Right Side) -->
+            <div class="chat-main" id="chatMain">
+                <!-- Profile Bar -->
+                <div class="profile-bar">
+                    <div class="user-badge">
+                        <div class="avatar" id="userAvatar">U</div>
+                        <div class="user-info">
+                            <span class="username" id="displayUsername">User</span>
+                            <span class="user-status">Online</span>
+                        </div>
+                    </div>
+                    <button class="logout-btn" onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+
+                <!-- DASHBOARD PANEL -->
+                <div class="dashboard-panel active" id="dashboardPanel">
+                    <div class="dashboard-welcome">
+                        <h2>Welcome back, <span id="dashboardUser">User</span>!</h2>
+                        <p>Track your search activity and history summary here.</p>
+                    </div>
+
+                    <div class="stats-row">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-search"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Searches</span>
+                                <span class="stat-value" id="totalSearchesCount">0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon" style="color: #fbbf24; background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.2);"><i class="fas fa-coins"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Credit Balance</span>
+                                <span class="stat-value" id="creditBalanceCount">100</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="recent-searches-section">
+                        <h3><i class="fas fa-history"></i> Recent Searches (Last 10)</h3>
+                        <div class="table-container">
+                            <table class="recent-searches-table">
+                                <thead>
+                                    <tr>
+                                        <th>Query</th>
+                                        <th>Date & Time</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentSearchesTableBody">
+                                    <!-- Dynamic rows loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CHAT PANEL -->
+                <div class="chat-panel" id="chatPanel">
+                    <!-- Dashboard Header -->
+                    <div class="dashboard-header">
+                        <h1>🤖 AI Search</h1>
+                    </div>
+
+                    <!-- Search Area -->
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="Enter your question..." autocomplete="off">
+                        <button id="searchBtn" class="search-btn" onclick="sendRequest()">Search</button>
+                    </div>
+                    <div class="loading" id="loading">⏳ Thinking...</div>
+                    <div class="output-box empty" id="output"></div>
+                </div>
+
+                <!-- SETTINGS PANEL -->
+<div class="dashboard-panel flex-1 overflow-y-auto p-8 space-y-8 custom-scrollbar" id="settingsPanel">
+    <div class="dashboard-welcome">
+        <h2 class="text-2xl font-bold text-white font-geist">Account Settings</h2>
+        <p class="text-on-surface-variant/60 text-sm mt-1">Configure your terminal and search preferences.</p>
+    </div>
+
+    <div class="glass-card p-6 rounded-2xl space-y-6 max-w-2xl border border-white/5">
+        <!-- API Key Status -->
+        <div class="space-y-2">
+            <h4 class="text-sm font-semibold text-white">AI Engine Configuration</h4>
+            <p class="text-xs text-on-surface-variant/70">The system automatically detects provider keys (Gemini, Groq,
+                OpenAI) based on the API_KEY set in your config file.</p>
+            <div class="p-4 bg-white/2 border border-white/5 rounded-xl flex items-center justify-between mt-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center text-primary text-sm">
+                        <i class="fas fa-key"></i>
+                    </div>
+                    <div class="flex flex-col">
+                        <span class="text-xs font-semibold text-white">API Key Status</span>
+                        <span class="text-[10px] text-green-400 font-mono mt-0.5" id="settingsKeyStatus">Loading
+                            config...</span>
+                    </div>
+                </div>
+                <span
+                    class="text-[10px] bg-white/5 text-on-surface-variant/70 px-2.5 py-1 rounded font-mono">config.js</span>
+            </div>
+        </div>
+
+
+
+        <!-- Storage & History Actions -->
+        <div class="space-y-4">
+            <div>
+                <h4 class="text-sm font-semibold text-white">Database & Privacy</h4>
+                <p class="text-xs text-on-surface-variant/70 mt-1">Manage your cached search entries stored in MySQL.
+                </p>
+            </div>
+            <div class="flex items-center justify-between p-4 bg-red-500/5 border border-red-500/10 rounded-xl mt-2">
+                <div class="space-y-0.5">
+                    <span class="text-xs font-semibold text-white">Clear Search History</span>
+                    <p class="text-[10px] text-on-surface-variant/50">Permanently delete all past search queries and AI
+                        responses from your dashboard.</p>
+                </div>
+                <button onclick="clearSearchHistory()"
+                    class="px-4 py-2 bg-red-500/15 border border-red-500/30 hover:bg-red-500 hover:text-white rounded-lg text-xs font-bold text-red-400 transition-all">
+                    Clear History
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- Feedback Modal Overlay -->
+<div class="modal-overlay" id="feedbackModalOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 8, 20, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 2000; justify-content: center; align-items: center; padding: 20px;">
+    <div class="glass-card" style="width: 100%; max-width: 460px; padding: 30px; border-radius: 20px; background: rgba(22, 20, 38, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 8px 32px rgba(0,0,0,0.5); display: flex; flex-direction: column; gap: 20px; animation: fadeIn 0.3s ease;">
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 15px;">
+            <h3 style="color: #fff; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 8px; margin: 0;"><i class="fas fa-comment-alt" style="color: #fbbf24;"></i> Send Feedback</h3>
+            <button onclick="closeFeedbackModal()" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.1rem;"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="generalFeedbackForm" onsubmit="handleGeneralFeedback(event)" style="display: flex; flex-direction: column; gap: 15px;">
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+                <label for="feedbackCategory" style="font-size: 0.85rem; color: rgba(255,255,255,0.7); font-weight: 500;">Category</label>
+                <select id="feedbackCategory" style="width: 100%; padding: 12px; background: rgba(10, 8, 20, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; outline: none; cursor: pointer; font-size: 0.9rem;">
+                    <option value="general">General Feedback</option>
+                    <option value="bug">Bug Report</option>
+                    <option value="feature">Feature Request</option>
+                    <option value="complaint">Complaint</option>
+                </select>
+            </div>
+            <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+                <label for="feedbackMessage" style="font-size: 0.85rem; color: rgba(255,255,255,0.7); font-weight: 500;">Your Message</label>
+                <textarea id="feedbackMessage" rows="4" placeholder="Tell us what's on your mind..." required style="width: 100%; padding: 12px; background: rgba(10, 8, 20, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; outline: none; font-size: 0.9rem; font-family: inherit; resize: vertical; min-height: 80px; transition: border-color 0.3s;" onfocus="this.style.borderColor='rgba(251,191,36,0.5)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"></textarea>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 5px;">
+                <button type="button" onclick="closeFeedbackModal()" class="logout-btn" style="padding: 10px 18px; font-size: 0.9rem;">Cancel</button>
+                <button type="submit" class="submit-btn" id="feedbackSubmitBtn" style="padding: 10px 22px; font-size: 0.9rem; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);">Submit Feedback</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Application Script -->
+<script src="app.js"></script>
+</body>
+
+</html>

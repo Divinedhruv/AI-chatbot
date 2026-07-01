@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Aetheris AI - Workspace (Reference Template)</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&amp;family=Inter:wght@100..900&amp;family=JetBrains+Mono:wght@100..800&amp;display=swap" rel="stylesheet"/>
+    <style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #050505;
+            color: #e5e2e1;
+            overflow-x: hidden;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-modal {
+            background: rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 0 40px rgba(139, 92, 246, 0.1);
+        }
+        .ai-pulse {
+            animation: pulse-glow 3s infinite ease-in-out;
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(139, 92, 246, 0.2); border-color: rgba(139, 92, 246, 0.3); }
+            50% { box-shadow: 0 0 30px rgba(217, 70, 239, 0.4); border-color: rgba(217, 70, 239, 0.6); }
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+        
+        .sidebar-collapsed { width: 80px; }
+        .sidebar-expanded { width: 256px; }
+    </style>
+</head>
+<body class="font-body-md text-on-surface selection:bg-primary/30">
+    <!-- Background Shader -->
+    <div class="fixed inset-0 z-0 pointer-events-none opacity-40"></div>
+
+    <!-- SideNavBar -->
+    <aside class="fixed left-0 top-0 h-full z-40 hidden md:flex flex-col bg-surface/30 backdrop-blur-xl border-r border-white/5 shadow-[0_0_20px_rgba(139,92,246,0.1)] sidebar-expanded transition-all duration-500 overflow-hidden" id="side-nav">
+        <div class="p-6 flex items-center justify-between">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-primary to-secondary flex items-center justify-center shrink-0">
+                    <span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                </div>
+                <span class="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent whitespace-nowrap">Aether AI</span>
+            </div>
+            <button class="text-on-surface-variant hover:text-primary transition-colors p-1" onclick="toggleSidebar()">
+                <span class="material-symbols-outlined">menu_open</span>
+            </button>
+        </div>
+        <nav class="flex-1 px-4 space-y-2 mt-4">
+            <a class="flex items-center gap-3 px-4 py-3 text-primary-fixed-dim bg-white/5 rounded-xl border border-white/10 active:scale-95 transition-all duration-300" href="#">
+                <span class="material-symbols-outlined">dashboard</span>
+                <span class="font-body-md text-body-md whitespace-nowrap nav-label">Dashboard</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:bg-white/10 hover:text-on-surface transition-all duration-300 active:scale-95" href="#">
+                <span class="material-symbols-outlined">add_box</span>
+                <span class="font-body-md text-body-md whitespace-nowrap nav-label">New Chat</span>
+            </a>
+            <a class="flex items-center gap-3 px-4 py-3 text-on-surface-variant/70 hover:bg-white/10 hover:text-on-surface transition-all duration-300 active:scale-95" href="#">
+                <span class="material-symbols-outlined">history</span>
+                <span class="font-body-md text-body-md whitespace-nowrap nav-label">Search History</span>
+            </a>
+        </nav>
+        <div class="p-4 mt-auto">
+            <div class="glass-card rounded-2xl p-4 space-y-3 nav-cta-box transition-all duration-300">
+                <p class="text-xs text-on-surface-variant/80 font-mono">CURRENT PLAN</p>
+                <p class="text-xl text-primary font-bold">Pro Explorer</p>
+                <button class="w-full py-2 bg-gradient-to-r from-primary to-secondary rounded-xl text-on-primary font-bold text-sm hover:brightness-110 active:scale-95 transition-all">
+                    Upgrade to Ultra
+                </button>
+            </div>
+            <div class="mt-4 flex items-center gap-3 px-2">
+                <div class="w-10 h-10 rounded-full border border-primary/30 bg-purple-900 flex items-center justify-center font-bold text-white">U</div>
+                <div class="flex flex-col overflow-hidden nav-label">
+                    <span class="text-sm font-bold truncate">User Profile</span>
+                    <span class="text-xs text-on-surface-variant truncate">Premium Member</span>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="relative z-10 min-h-screen md:ml-64 transition-all duration-500 pb-24 md:pb-0" id="main-canvas">
+        <!-- TopAppBar -->
+        <header class="fixed top-0 right-0 left-0 md:left-64 flex justify-between items-center px-8 h-20 z-30 bg-surface/20 backdrop-blur-lg">
+            <div class="flex items-center gap-8">
+                <div class="flex bg-white/5 p-1 rounded-full border border-white/10">
+                    <button class="px-6 py-2 rounded-full font-bold text-sm transition-all duration-300 text-primary bg-white/10" id="tab-dashboard" onclick="switchView('dashboard')">
+                        Dashboard
+                    </button>
+                    <button class="px-6 py-2 rounded-full font-bold text-sm transition-all duration-300 text-on-surface-variant hover:text-on-surface" id="tab-chat" onclick="switchView('chat')">
+                        Chat
+                    </button>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-white/10 transition-all">
+                    <span class="material-symbols-outlined">notifications</span>
+                </button>
+                <button class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:bg-white/10 transition-all">
+                    <span class="material-symbols-outlined">help</span>
+                </button>
+                <div class="h-8 w-[1px] bg-white/10 mx-2"></div>
+                <div class="flex items-center gap-2">
+                    <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+                    <span class="font-mono text-xs hidden lg:block">System Active</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- View 1: Dashboard -->
+        <div class="pt-28 px-8 pb-12 space-y-12 animate-in fade-in duration-700" id="view-dashboard">
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-primary/10 blur-3xl -mr-12 -mt-12 group-hover:bg-primary/20 transition-all"></div>
+                    <div class="flex flex-col gap-2">
+                        <span class="text-on-surface-variant/70 font-mono text-xs uppercase tracking-widest">Total Searches</span>
+                        <h3 class="text-3xl text-primary font-bold">12,482</h3>
+                        <div class="flex items-center gap-2 text-xs text-green-400 mt-2">
+                            <span class="material-symbols-outlined text-sm">trending_up</span>
+                            <span>+12% this week</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-secondary/10 blur-3xl -mr-12 -mt-12 group-hover:bg-secondary/20 transition-all"></div>
+                    <div class="flex flex-col gap-2">
+                        <span class="text-on-surface-variant/70 font-mono text-xs uppercase tracking-widest">AI Tokens Used</span>
+                        <h3 class="text-3xl text-secondary font-bold">842.1k</h3>
+                        <div class="flex items-center gap-2 text-xs text-on-surface-variant mt-2">
+                            <div class="w-full bg-white/5 h-1 rounded-full overflow-hidden">
+                                <div class="bg-secondary h-full w-[65%]"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-tertiary/10 blur-3xl -mr-12 -mt-12 group-hover:bg-tertiary/20 transition-all"></div>
+                    <div class="flex flex-col gap-2">
+                        <span class="text-on-surface-variant/70 font-mono text-xs uppercase tracking-widest">Avg Response Time</span>
+                        <h3 class="text-3xl text-tertiary font-bold">0.84s</h3>
+                        <div class="flex items-center gap-2 text-xs text-green-400 mt-2">
+                            <span class="material-symbols-outlined text-sm">bolt</span>
+                            <span>Ultra-fast processing</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass-card p-6 rounded-3xl relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 w-24 h-24 bg-white/5 blur-3xl -mr-12 -mt-12 group-hover:bg-white/10 transition-all"></div>
+                    <div class="flex flex-col gap-2">
+                        <span class="text-on-surface-variant/70 font-mono text-xs uppercase tracking-widest">Credit Balance</span>
+                        <h3 class="text-3xl text-on-surface font-bold">$245.00</h3>
+                        <button class="text-xs text-primary underline underline-offset-4 mt-2 hover:text-secondary transition-colors">Refill credits</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Searches Table -->
+            <div class="glass-card rounded-3xl overflow-hidden border border-white/5">
+                <div class="px-8 py-6 border-b border-white/5 flex items-center justify-between">
+                    <h2 class="text-2xl font-bold">Recent Search Queries</h2>
+                    <div class="flex gap-2">
+                        <button class="p-2 hover:bg-white/5 rounded-lg transition-all"><span class="material-symbols-outlined">filter_list</span></button>
+                        <button class="p-2 hover:bg-white/5 rounded-lg transition-all"><span class="material-symbols-outlined">refresh</span></button>
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-white/5 text-on-surface-variant/70 font-mono text-xs uppercase tracking-wider">
+                                <th class="px-8 py-4">Query</th>
+                                <th class="px-8 py-4">Timestamp</th>
+                                <th class="px-8 py-4">Status</th>
+                                <th class="px-8 py-4 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-white/5">
+                            <tr class="hover:bg-white/5 transition-all group">
+                                <td class="px-8 py-5">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+                                            <span class="material-symbols-outlined text-sm">search</span>
+                                        </div>
+                                        <span class="font-medium text-on-surface max-w-xs truncate">Quantum computing influence on global cybersecurity 2025</span>
+                                    </div>
+                                </td>
+                                <td class="px-8 py-5 text-on-surface-variant text-sm font-mono">Today, 14:24</td>
+                                <td class="px-8 py-5">
+                                    <span class="px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-bold border border-green-500/20">Success</span>
+                                </td>
+                                <td class="px-8 py-5 text-right space-x-2">
+                                    <button class="px-4 py-2 text-xs font-bold bg-white/5 rounded-lg hover:bg-primary hover:text-on-primary transition-all">View</button>
+                                    <button class="p-2 text-on-surface-variant hover:text-error transition-all"><span class="material-symbols-outlined text-lg">delete</span></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- View 2: Chat -->
+        <div class="hidden h-[calc(100vh-80px)] mt-20 flex flex-col pt-4" id="view-chat">
+            <!-- Chat Feed -->
+            <div class="flex-1 overflow-y-auto px-8 py-6 space-y-8 custom-scrollbar">
+                <!-- User Message -->
+                <div class="flex justify-end">
+                    <div class="max-w-2xl bg-gradient-to-br from-primary to-secondary p-5 rounded-3xl rounded-tr-none shadow-lg shadow-primary/20">
+                        <p class="text-white">Can you analyze the current market trends for sustainable space travel technology, specifically focusing on solid-state propulsion systems?</p>
+                        <div class="mt-2 text-[10px] text-white/60 font-mono">14:24 PM</div>
+                    </div>
+                </div>
+                <!-- AI Message -->
+                <div class="flex justify-start">
+                    <div class="flex gap-4 max-w-3xl">
+                        <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center shrink-0 border border-white/10 mt-1">
+                            <span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                        </div>
+                        <div class="glass-modal p-6 rounded-3xl rounded-tl-none">
+                            <div class="flex items-center gap-3 mb-4">
+                                <span class="px-2 py-0.5 rounded bg-primary/20 text-primary text-[10px] font-bold uppercase tracking-wider">Analysis Mode</span>
+                                <div class="w-1.5 h-1.5 rounded-full bg-green-500 ai-pulse"></div>
+                            </div>
+                            <div class="space-y-4 text-on-surface-variant leading-relaxed">
+                                <p>Solid-state propulsion represents the frontier of sustainable interplanetary transit. Recent developments in 2024-2025 suggest a paradigm shift toward electric-solid hybrid systems.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Chat Input Area -->
+            <div class="p-8 pb-12 relative">
+                <div class="max-w-4xl mx-auto relative group">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-primary to-secondary rounded-[2rem] blur opacity-10 group-hover:opacity-20 transition duration-1000 group-focus-within:opacity-30"></div>
+                    <div class="relative bg-surface-container-high/80 backdrop-blur-3xl rounded-full border border-white/10 px-4 py-3 flex items-center gap-3 ai-pulse shadow-2xl">
+                        <button class="w-10 h-10 rounded-full hover:bg-white/5 flex items-center justify-center text-on-surface-variant transition-all">
+                            <span class="material-symbols-outlined">attachment</span>
+                        </button>
+                        <textarea class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-on-surface-variant/50 resize-none py-2 scrollbar-hide" placeholder="Describe your cosmic inquiry..." rows="1"></textarea>
+                        <div class="flex items-center gap-1">
+                            <button class="w-10 h-10 rounded-full hover:bg-white/5 flex items-center justify-center text-on-surface-variant transition-all">
+                                <span class="material-symbols-outlined">mic</span>
+                            </button>
+                            <button class="w-12 h-12 rounded-full bg-gradient-to-tr from-primary to-secondary flex items-center justify-center text-on-primary shadow-lg shadow-primary/30 hover:scale-105 active:scale-95 transition-all">
+                                <span class="material-symbols-outlined" style="font-variation-settings: 'wght' 600;">arrow_upward</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- BottomNavBar (Mobile) -->
+    <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-2 md:hidden bg-surface-container/80 backdrop-blur-2xl border-t border-white/10 shadow-[0_-4px_24px_rgba(0,0,0,0.5)]">
+        <button class="flex flex-col items-center justify-center text-on-surface-variant p-2 hover:text-primary active:scale-90 transition-all" onclick="switchView('chat')">
+            <span class="material-symbols-outlined">chat</span>
+            <span class="text-[10px] font-mono mt-1">Chat</span>
+        </button>
+        <button class="flex flex-col items-center justify-center text-primary-fixed-dim bg-primary/10 rounded-full p-2 active:scale-90 transition-all" onclick="switchView('dashboard')">
+            <span class="material-symbols-outlined">query_stats</span>
+            <span class="text-[10px] font-mono mt-1">Stats</span>
+        </button>
+    </nav>
+
+    <script>
+        let sidebarExpanded = true;
+
+        function toggleSidebar() {
+            const sideNav = document.getElementById('side-nav');
+            const mainCanvas = document.getElementById('main-canvas');
+            const labels = document.querySelectorAll('.nav-label');
+            const ctaBox = document.querySelector('.nav-cta-box');
+            
+            if (sidebarExpanded) {
+                sideNav.classList.remove('sidebar-expanded');
+                sideNav.classList.add('sidebar-collapsed');
+                mainCanvas.classList.remove('md:ml-64');
+                mainCanvas.classList.add('md:ml-20');
+                labels.forEach(l => l.style.display = 'none');
+                ctaBox.style.display = 'none';
+                sidebarExpanded = false;
+            } else {
+                sideNav.classList.add('sidebar-expanded');
+                sideNav.classList.remove('sidebar-collapsed');
+                mainCanvas.classList.add('md:ml-64');
+                mainCanvas.classList.remove('md:ml-20');
+                labels.forEach(l => l.style.display = 'block');
+                ctaBox.style.display = 'block';
+                sidebarExpanded = true;
+            }
+        }
+
+        function switchView(view) {
+            const vDash = document.getElementById('view-dashboard');
+            const vChat = document.getElementById('view-chat');
+            const btnDash = document.getElementById('tab-dashboard');
+            const btnChat = document.getElementById('tab-chat');
+
+            if (view === 'dashboard') {
+                vDash.classList.remove('hidden');
+                vChat.classList.add('hidden');
+                btnDash.classList.add('text-primary', 'bg-white/10');
+                btnDash.classList.remove('text-on-surface-variant');
+                btnChat.classList.remove('text-primary', 'bg-white/10');
+                btnChat.classList.add('text-on-surface-variant');
+            } else {
+                vDash.classList.add('hidden');
+                vChat.classList.remove('hidden');
+                btnChat.classList.add('text-primary', 'bg-white/10');
+                btnChat.classList.remove('text-on-surface-variant');
+                btnDash.classList.remove('text-primary', 'bg-white/10');
+                btnDash.classList.add('text-on-surface-variant');
+            }
+        }
+
+        // Auto-scroll chat to bottom
+        const chatFeed = document.querySelector('.custom-scrollbar');
+        if (chatFeed) chatFeed.scrollTop = chatFeed.scrollHeight;
+
+        // Micro-interaction for buttons
+        document.querySelectorAll('button').forEach(btn => {
+            btn.addEventListener('mousedown', () => btn.style.transform = 'scale(0.95)');
+            btn.addEventListener('mouseup', () => btn.style.transform = 'scale(1)');
+            btn.addEventListener('mouseleave', () => btn.style.transform = 'scale(1)');
+        });
+    </script>
+</body>
+</html>

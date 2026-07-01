@@ -1,0 +1,1451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - AI Search</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Premium Stylesheet (extends base styling) -->
+    <link rel="stylesheet" href="/style.css">
+    <!-- Chart.js for premium graphics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <!-- ADMIN LOGIN OVERLAY (shown when not authenticated) -->
+    <div id="adminLoginOverlay"
+        style="display: flex; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: linear-gradient(135deg, #0a0814 0%, #13102a 50%, #1a1040 100%); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
+        <div
+            style="width: 100%; max-width: 420px; display: flex; flex-direction: column; align-items: center; gap: 30px;">
+            <!-- Logo & Title -->
+            <div style="text-align: center; display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                <div
+                    style="width: 72px; height: 72px; border-radius: 20px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 0 40px rgba(245, 158, 11, 0.4); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #fff;">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div>
+                    <h1
+                        style="font-size: 1.8rem; font-weight: 700; color: #fff; margin: 0; background: linear-gradient(135deg, #fff 40%, #fbbf24 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        Admin Panel</h1>
+                    <p style="color: rgba(255,255,255,0.5); font-size: 0.9rem; margin-top: 6px;">Sign in with your
+                        administrator account</p>
+                </div>
+            </div>
+
+            <!-- Login Card -->
+            <div class="glass-card"
+                style="width: 100%; padding: 32px; border-radius: 20px; background: rgba(22, 20, 38, 0.85); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px rgba(0,0,0,0.4); backdrop-filter: blur(20px); display: flex; flex-direction: column; gap: 20px;">
+                <div class="error" id="adminLoginError" style="display: none; margin: 0;"></div>
+                <form id="adminLoginForm" onsubmit="handleAdminLogin(event)"
+                    style="display: flex; flex-direction: column; gap: 18px;">
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+                        <label for="adminLoginUser"
+                            style="font-size: 0.85rem; color: rgba(255,255,255,0.7); font-weight: 500;">Username or
+                            Email</label>
+                        <div style="position: relative;">
+                            <i class="fas fa-user"
+                                style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.85rem;"></i>
+                            <input type="text" id="adminLoginUser" placeholder="Enter admin username or email" required
+                                style="width: 100%; padding: 14px 14px 14px 40px; background: rgba(10, 8, 20, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; font-size: 0.95rem; outline: none; transition: border-color 0.3s;"
+                                onfocus="this.style.borderColor='rgba(251,191,36,0.5)'"
+                                onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+                        </div>
+                    </div>
+                    <div class="form-group" style="display: flex; flex-direction: column; gap: 6px;">
+                        <label for="adminLoginPassword"
+                            style="font-size: 0.85rem; color: rgba(255,255,255,0.7); font-weight: 500;">Password</label>
+                        <div style="position: relative;">
+                            <i class="fas fa-lock"
+                                style="position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3); font-size: 0.85rem;"></i>
+                            <input type="password" id="adminLoginPassword" placeholder="Enter password" required
+                                style="width: 100%; padding: 14px 14px 14px 40px; background: rgba(10, 8, 20, 0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: #fff; font-size: 0.95rem; outline: none; transition: border-color 0.3s;"
+                                onfocus="this.style.borderColor='rgba(251,191,36,0.5)'"
+                                onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+                        </div>
+                    </div>
+                    <button type="submit" id="adminLoginBtn"
+                        style="width: 100%; padding: 14px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; font-weight: 600; font-size: 1rem; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 20px rgba(245, 158, 11, 0.35); transition: transform 0.2s, box-shadow 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;"
+                        onmouseover="this.style.transform='translateY(-1px)'; this.style.boxShadow='0 6px 25px rgba(245, 158, 11, 0.45)'"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 20px rgba(245, 158, 11, 0.35)'">
+                        <i class="fas fa-sign-in-alt"></i> Sign In to Admin
+                    </button>
+                </form>
+            </div>
+
+            <!-- Footer text -->
+            <p style="color: rgba(255,255,255,0.25); font-size: 0.78rem; text-align: center;">Only authorized
+                administrators can access this panel.<br>Contact the system admin if you need access.</p>
+        </div>
+    </div>
+
+    <!-- MAIN ADMIN DASHBOARD (hidden until auth succeeds) -->
+    <div class="container dashboard-mode" id="mainContainer" style="display: none;">
+        <!-- Error & Success alerts (Global to container) -->
+        <div class="error" id="error"></div>
+        <div class="success-alert" id="successAlert"></div>
+
+        <!-- ADMIN WRAPPER WITH COLLAPSIBLE SIDEBAR -->
+        <div class="search-wrapper active" id="adminWrapper">
+            <!-- Sidebar (Left Side) -->
+            <div class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-logo">
+                        <div class="logo-icon"
+                            style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); box-shadow: 0 0 20px rgba(245, 158, 11, 0.45);">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                        <span class="sidebar-title"
+                            style="background: linear-gradient(135deg, #fff 40%, #fbbf24 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Admin
+                            Panel</span>
+                    </div>
+                    <button class="toggle-btn" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <!-- Navigation List -->
+                <div class="sidebar-actions sidebar-nav custom-scrollbar">
+                    <button class="sidebar-action-btn active" id="nav-dashboard" onclick="switchTab('dashboard')"
+                        title="Dashboard">
+                        <i class="fas fa-tachometer-alt"></i> <span>Dashboard</span>
+                    </button>
+                    <button class="sidebar-action-btn" id="nav-users" onclick="switchTab('users')"
+                        title="User Management">
+                        <i class="fas fa-users"></i> <span>User Management</span>
+                    </button>
+                    <button class="sidebar-action-btn" id="nav-ai-config" onclick="switchTab('ai-config')"
+                        title="AI Configuration">
+                        <i class="fas fa-robot"></i> <span>AI Configuration</span>
+                    </button>
+                    <button class="sidebar-action-btn" id="nav-api" onclick="switchTab('api')" title="API Settings">
+                        <i class="fas fa-sliders-h"></i> <span>API Settings</span>
+                    </button>
+                    <button class="sidebar-action-btn" id="nav-chat-mgmt" onclick="switchTab('chat-mgmt')"
+                        title="Chat Management">
+                        <i class="fas fa-comments"></i> <span>Chat Management</span>
+                    </button>
+                    <button class="sidebar-action-btn" id="nav-analytics" onclick="switchTab('analytics')"
+                        title="Analytics">
+                        <i class="fas fa-chart-line"></i> <span>Analytics</span>
+                    </button>
+                    <button class="sidebar-action-btn" id="nav-feedback" onclick="switchTab('feedback')"
+                        title="Feedback">
+                        <i class="fas fa-comment-alt"></i> <span>Feedback</span>
+                    </button>
+                    <button class="sidebar-action-btn" id="nav-security" onclick="switchTab('security')"
+                        title="Security">
+                        <i class="fas fa-shield-alt"></i> <span>Security</span>
+                    </button>
+                    <button class="sidebar-action-btn" id="nav-system" onclick="switchTab('system')"
+                        title="System Settings">
+                        <i class="fas fa-cog"></i> <span>System Settings</span>
+                    </button>
+                    <button class="sidebar-action-btn" id="nav-logs" onclick="switchTab('logs')" title="Logs">
+                        <i class="fas fa-clipboard-list"></i> <span>Logs</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Admin Main Area (Right Side) -->
+            <div class="chat-main" id="adminMain">
+                <!-- Profile Bar -->
+                <div class="profile-bar">
+                    <div class="user-badge">
+                        <div class="avatar" id="adminAvatar"
+                            style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);">A</div>
+                        <div class="user-info">
+                            <span class="username" id="displayUsername">Admin</span>
+                            <span class="user-status" style="color: #fbbf24; opacity: 0.95;"><i
+                                    class="fas fa-shield-alt" style="font-size: 0.75rem; margin-right: 2px;"></i>
+                                Administrator</span>
+                        </div>
+                    </div>
+                    <button class="logout-btn" onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </button>
+                </div>
+
+                <!-- CONTENT PANELS -->
+
+                <!-- 1. Dashboard -->
+                <div class="dashboard-panel active" id="panel-dashboard" style="padding: 20px; gap: 25px;">
+                    <div class="dashboard-welcome" style="margin-bottom: 5px;">
+                        <h2>Admin Dashboard</h2>
+                        <p>Overview of system health, active configurations, and stats.</p>
+                    </div>
+
+                    <!-- Stats Row -->
+                    <div class="stats-row" style="margin-bottom: 0;">
+                        <!-- Total Users -->
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="color: #667eea; background: rgba(102, 126, 234, 0.1); border-color: rgba(102, 126, 234, 0.2);">
+                                <i class="fas fa-users"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Users</span>
+                                <span class="stat-value" id="statTotalUsers">0</span>
+                            </div>
+                        </div>
+                        <!-- Online Users -->
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="color: #10b981; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);">
+                                <i class="fas fa-signal" id="onlinePulseIcon"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-label">Online Users</span>
+                                <span class="stat-value" id="statOnlineUsers">0</span>
+                            </div>
+                        </div>
+                        <!-- Total Credits remaining in pool -->
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="color: #fbbf24; background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.2);">
+                                <i class="fas fa-coins"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Credits Pool</span>
+                                <span class="stat-value" id="statTotalCredits">0</span>
+                            </div>
+                        </div>
+                        <!-- Total Credits Used -->
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="color: #f43f5e; background: rgba(244, 63, 94, 0.1); border-color: rgba(244, 63, 94, 0.2);">
+                                <i class="fas fa-chart-pie"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Total Credits Used</span>
+                                <span class="stat-value" id="statCreditsUsed">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Live Graphs Row -->
+                    <div class="dashboard-row"
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                        <div class="glass-card"
+                            style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                            <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 5px;"><i
+                                    class="fas fa-microchip" style="color: #fbbf24; margin-right: 8px;"></i> Live CPU
+                                Usage (%)</h3>
+                            <div style="height: 150px; position: relative;">
+                                <canvas id="cpuChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-card"
+                            style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                            <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 5px;"><i
+                                    class="fas fa-memory" style="color: #667eea; margin-right: 8px;"></i> Live RAM Usage
+                                (%)</h3>
+                            <div style="height: 150px; position: relative;">
+                                <canvas id="ramChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Widgets & Tables Info Row -->
+                    <div class="dashboard-row"
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                        <!-- System status widgets -->
+                        <div class="glass-card"
+                            style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                            <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 5px;"><i
+                                    class="fas fa-server" style="color: #fbbf24; margin-right: 8px;"></i> System Status
+                            </h3>
+                            <div class="system-widgets" style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                    <span style="color: var(--text-secondary);">Server Status:</span>
+                                    <span style="font-weight: 600; color: #10b981;"><i class="fas fa-check-circle"></i>
+                                        Online</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                    <span style="color: var(--text-secondary);">Server Uptime:</span>
+                                    <span style="font-weight: 600; color: #fff;" id="widgetUptime">0d 0h 0m 0s</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                    <span style="color: var(--text-secondary);">MySQL Database:</span>
+                                    <span style="font-weight: 600; color: #10b981;" id="widgetDbStatus"><i
+                                            class="fas fa-check-circle"></i> Connected (<span
+                                            id="widgetDbLatency">0</span>ms)</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                    <span style="color: var(--text-secondary);">AI Engine Provider:</span>
+                                    <span style="font-weight: 600; color: #fbbf24;"
+                                        id="widgetApiKeyStatus">Checking...</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;">
+                                    <span style="color: var(--text-secondary);">Platform OS:</span>
+                                    <span style="font-weight: 600; color: #a78bfa;" id="widgetPlatform">Windows</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Latest registered users -->
+                        <div class="glass-card"
+                            style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                            <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 5px;"><i
+                                    class="fas fa-user-plus" style="color: #fbbf24; margin-right: 8px;"></i> Latest
+                                Registered Users</h3>
+                            <div class="table-container"
+                                style="background: transparent; border: none; min-height: unset; max-height: 180px; overflow-y: auto; margin-top: -10px;">
+                                <table class="recent-searches-table" style="font-size: 0.85rem; width: 100%;">
+                                    <thead>
+                                        <tr>
+                                            <th style="padding: 8px 10px; font-size: 0.7rem;">User</th>
+                                            <th style="padding: 8px 10px; font-size: 0.7rem;">Credits</th>
+                                            <th style="padding: 8px 10px; font-size: 0.7rem;">Joined</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableLatestUsers">
+                                        <tr>
+                                            <td colspan="3"
+                                                style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 20px;">
+                                                Loading users...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bottom row: Credits Used Userwise -->
+                    <div class="glass-card"
+                        style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                        <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 5px;"><i
+                                class="fas fa-history" style="color: #fbbf24; margin-right: 8px;"></i> Latest Credits
+                            Used Userwise</h3>
+                        <div class="table-container"
+                            style="background: transparent; border: none; min-height: unset; max-height: 200px; overflow-y: auto; margin-top: -10px;">
+                            <table class="recent-searches-table" style="font-size: 0.85rem; width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th style="padding: 10px 15px; font-size: 0.7rem;">User</th>
+                                        <th style="padding: 10px 15px; font-size: 0.7rem;">Search Query</th>
+                                        <th style="padding: 10px 15px; font-size: 0.7rem;">Credits Used</th>
+                                        <th style="padding: 10px 15px; font-size: 0.7rem;">Timestamp</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableLatestCreditsUsed">
+                                    <tr>
+                                        <td colspan="4"
+                                            style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 20px;">
+                                            Loading usage logs...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. User Management -->
+                <div class="dashboard-panel" id="panel-users" style="padding: 20px; gap: 20px;">
+                    <div class="dashboard-welcome">
+                        <h2>User Management</h2>
+                        <p>Monitor user registration, accounts, and session permissions.</p>
+                    </div>
+                    <div class="glass-card"
+                        style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 20px;">
+
+                        <!-- Table Actions Header -->
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <h3
+                                style="font-size: 1.2rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0;">
+                                <i class="fas fa-users" style="color: #fbbf24;"></i> Accounts List
+                            </h3>
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <div class="history-search-wrapper"
+                                    style="margin: 0; min-width: 250px; background: rgba(15, 13, 28, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; display: flex; align-items: center; padding: 0 12px; height: 38px;">
+                                    <span
+                                        style="color: var(--text-secondary); margin-right: 8px; font-size: 0.85rem;"><i
+                                            class="fas fa-search"></i></span>
+                                    <input type="text" id="adminUsersSearch" placeholder="Search by name or email..."
+                                        oninput="filterAdminUsers()"
+                                        style="background: transparent; border: none; padding: 0; color: #fff; font-size: 0.85rem; width: 100%; outline: none;">
+                                </div>
+                                <button class="table-view-btn" onclick="openCreateUserModal()"
+                                    style="padding: 9px 16px; font-size: 0.85rem; background: var(--accent-gradient); color: #fff; border-color: transparent; box-shadow: var(--accent-glow); height: 38px; display: flex; align-items: center; gap: 6px;">
+                                    <i class="fas fa-user-plus"></i> Add User
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Users Table -->
+                        <div class="table-container"
+                            style="background: rgba(10, 8, 20, 0.2); border: 1px solid var(--card-border); border-radius: 12px; min-height: 300px; max-height: 450px; overflow-y: auto;">
+                            <table class="recent-searches-table" style="font-size: 0.85rem; width: 100%;">
+                                <thead style="position: sticky; top: 0; z-index: 10; background: #13102a;">
+                                    <tr>
+                                        <th style="padding: 12px 15px; font-size: 0.75rem;">User Info</th>
+                                        <th style="padding: 12px 15px; font-size: 0.75rem;">Credits</th>
+                                        <th style="padding: 12px 15px; font-size: 0.75rem;">Role</th>
+                                        <th style="padding: 12px 15px; font-size: 0.75rem;">Status</th>
+                                        <th style="padding: 12px 15px; font-size: 0.75rem;">Last Active</th>
+                                        <th style="padding: 12px 15px; text-align: right; font-size: 0.75rem;">Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableAdminUsersList">
+                                    <tr>
+                                        <td colspan="6"
+                                            style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 30px;">
+                                            Loading database accounts...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. AI Configuration -->
+                <div class="dashboard-panel" id="panel-ai-config" style="padding: 20px; gap: 20px;">
+                    <div class="dashboard-welcome" style="margin-bottom: 5px;">
+                        <h2>AI Configuration</h2>
+                        <p>Manage model endpoints, temperature parameters, and prompt rules.</p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                        <!-- AI Settings Form -->
+                        <div class="glass-card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; gap: 15px;">
+                            <h3 style="font-size: 1.2rem; font-weight: 600; color: #fff;"><i class="fas fa-robot" style="color: #fbbf24; margin-right: 8px;"></i> Global AI Parameters</h3>
+                            <form id="aiSettingsForm" onsubmit="saveAiSettings(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                                
+                                <div class="form-group">
+                                    <label style="font-size: 0.95rem; color: #fff; display: block; margin-bottom: 8px;">Available Models</label>
+                                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 10px;">Select which models are exposed to the users.</p>
+                                    <div style="display: flex; gap: 15px; flex-wrap: wrap;" id="availableModelsContainer">
+                                        <label style="display: flex; align-items: center; gap: 8px; color: #d1d5db; cursor: pointer;">
+                                            <input type="checkbox" name="available_models" value="Llama 3.3"> Llama 3.3
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px; color: #d1d5db; cursor: pointer;">
+                                            <input type="checkbox" name="available_models" value="GPT-3.5"> GPT-3.5
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 8px; color: #d1d5db; cursor: pointer;">
+                                            <input type="checkbox" name="available_models" value="Gemini 2.5"> Gemini 2.5
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" style="margin-top: 10px;">
+                                    <label for="systemPrompt" style="font-size: 0.95rem; color: #fff;">Global System Prompt</label>
+                                    <textarea id="systemPrompt" rows="4" style="width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; color: #fff; outline: none; margin-top: 5px; resize: vertical; font-family: inherit; font-size: 0.9rem;" placeholder="e.g. You are a helpful AI assistant."></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="maxTokens" style="font-size: 0.95rem; color: #fff;">Max Response Tokens</label>
+                                    <input type="number" id="maxTokens" min="1" max="128000" style="width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; color: #fff; outline: none; margin-top: 5px;" required>
+                                </div>
+
+                                <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                                    <button type="submit" class="submit-btn" style="padding: 10px 20px; font-size: 0.9rem; background: linear-gradient(135deg, #fbbf24, #d97706); border: none; border-radius: 10px; color: #fff; font-weight: 600; cursor: pointer;">Save AI Configurations</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. API Settings -->
+                <div class="dashboard-panel" id="panel-api" style="padding: 20px; gap: 20px;">
+                    <div class="dashboard-welcome">
+                        <h2>API Settings</h2>
+                        <p>Configure third-party API keys, endpoints, and fallbacks.</p>
+                    </div>
+
+                    <!-- Active Configuration Status Card -->
+                    <div class="glass-card"
+                        style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 22px; display: flex; flex-direction: column; gap: 15px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                            <h3
+                                style="font-size: 1.15rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0;">
+                                <i class="fas fa-plug" style="color: #fbbf24;"></i> Active Configuration
+                            </h3>
+                            <button class="table-view-btn" onclick="openApiKeyModal()"
+                                style="padding: 8px 16px; font-size: 0.85rem; background: var(--accent-gradient); color: #fff; border-color: transparent; box-shadow: var(--accent-glow); display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-pen"></i> Update API Key
+                            </button>
+                        </div>
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;">
+                            <div
+                                style="background: rgba(10, 8, 20, 0.35); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px;">
+                                <div
+                                    style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                                    Active Provider</div>
+                                <div id="apiStatusProvider" style="font-size: 1.05rem; font-weight: 600; color: #fff;">
+                                    Loading...</div>
+                            </div>
+                            <div
+                                style="background: rgba(10, 8, 20, 0.35); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px;">
+                                <div
+                                    style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                                    API Key</div>
+                                <div id="apiStatusKey"
+                                    style="font-size: 0.95rem; font-weight: 500; color: var(--text-secondary); font-family: monospace;">
+                                    Loading...</div>
+                            </div>
+                            <div
+                                style="background: rgba(10, 8, 20, 0.35); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; padding: 16px;">
+                                <div
+                                    style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;">
+                                    Last Test</div>
+                                <div id="apiStatusLastTest"
+                                    style="font-size: 0.95rem; font-weight: 500; color: var(--text-secondary);">Not
+                                    tested</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Provider Cards Grid -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px;">
+
+                        <!-- Groq Card -->
+                        <div class="provider-card" id="providerCard-groq">
+                            <div class="provider-card-header">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="provider-icon"
+                                        style="background: linear-gradient(135deg, #f97316 0%, #ea580c 100%);">
+                                        <i class="fas fa-bolt"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; color: #fff; font-size: 1rem;">Groq</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Llama 3.3 70B
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="provider-status-dot" id="providerDot-groq"></span>
+                            </div>
+                            <div class="provider-card-body">
+                                <div class="provider-latency" id="providerLatency-groq">—</div>
+                                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                                    <button class="provider-action-btn" onclick="openApiKeyModal('groq')"><i
+                                            class="fas fa-key"></i> Set Key</button>
+                                    <button class="provider-action-btn test-btn" onclick="testApiConnection('groq')"><i
+                                            class="fas fa-wifi"></i> Test</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- OpenAI Card -->
+                        <div class="provider-card" id="providerCard-openai">
+                            <div class="provider-card-header">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="provider-icon"
+                                        style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+                                        <i class="fas fa-brain"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; color: #fff; font-size: 1rem;">OpenAI</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">GPT-3.5 Turbo
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="provider-status-dot" id="providerDot-openai"></span>
+                            </div>
+                            <div class="provider-card-body">
+                                <div class="provider-latency" id="providerLatency-openai">—</div>
+                                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                                    <button class="provider-action-btn" onclick="openApiKeyModal('openai')"><i
+                                            class="fas fa-key"></i> Set Key</button>
+                                    <button class="provider-action-btn test-btn"
+                                        onclick="testApiConnection('openai')"><i class="fas fa-wifi"></i> Test</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Gemini Card -->
+                        <div class="provider-card" id="providerCard-gemini">
+                            <div class="provider-card-header">
+                                <div style="display: flex; align-items: center; gap: 10px;">
+                                    <div class="provider-icon"
+                                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                        <i class="fas fa-gem"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 600; color: #fff; font-size: 1rem;">Gemini</div>
+                                        <div style="font-size: 0.75rem; color: var(--text-secondary);">Gemini 2.0 Flash
+                                        </div>
+                                    </div>
+                                </div>
+                                <span class="provider-status-dot" id="providerDot-gemini"></span>
+                            </div>
+                            <div class="provider-card-body">
+                                <div class="provider-latency" id="providerLatency-gemini">—</div>
+                                <div style="display: flex; gap: 8px; margin-top: 12px;">
+                                    <button class="provider-action-btn" onclick="openApiKeyModal('gemini')"><i
+                                            class="fas fa-key"></i> Set Key</button>
+                                    <button class="provider-action-btn test-btn"
+                                        onclick="testApiConnection('gemini')"><i class="fas fa-wifi"></i> Test</button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 5. Chat Management -->
+                <div class="dashboard-panel" id="panel-chat-mgmt" style="padding: 20px; gap: 20px;">
+                    <div class="dashboard-welcome" style="margin-bottom: 5px;">
+                        <h2>Chat Management</h2>
+                        <p>Search conversation history, monitor content flags, and analyze queries.</p>
+                    </div>
+
+                    <!-- Chat Management Sub Tabs -->
+                    <div class="auth-tabs" style="max-width: 480px; margin-bottom: 5px;">
+                        <button class="auth-tab active" id="tabChatHistory" onclick="switchChatMgmtTab('history')">Chat
+                            History</button>
+                        <button class="auth-tab" id="tabChatModeration"
+                            onclick="switchChatMgmtTab('moderation')">Moderation Flags</button>
+                        <button class="auth-tab" id="tabChatAnalytics" onclick="switchChatMgmtTab('analytics')">Query
+                            Analytics</button>
+                    </div>
+
+                    <!-- SUB-PANEL 1: Chat History -->
+                    <div class="chat-mgmt-section active" id="chat-mgmt-history"
+                        style="display: flex; flex-direction: column; gap: 20px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; gap: 15px; flex-wrap: wrap;">
+                            <h3
+                                style="font-size: 1.15rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0;">
+                                <i class="fas fa-history" style="color: #fbbf24;"></i> User Conversations
+                            </h3>
+                            <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                                <!-- User Filter Dropdown -->
+                                <select id="chatHistoryUserFilter" onchange="fetchChatConversations()"
+                                    style="padding: 9px 12px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 10px; color: #fff; outline: none; cursor: pointer; font-size: 0.85rem; height: 38px;">
+                                    <option value="">All Users</option>
+                                </select>
+                                <!-- Search Input -->
+                                <div class="history-search-wrapper"
+                                    style="margin: 0; min-width: 230px; background: rgba(15, 13, 28, 0.5); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 10px; display: flex; align-items: center; padding: 0 12px; height: 38px;">
+                                    <span
+                                        style="color: var(--text-secondary); margin-right: 8px; font-size: 0.85rem;"><i
+                                            class="fas fa-search"></i></span>
+                                    <input type="text" id="chatHistorySearchInput" placeholder="Search prompts..."
+                                        oninput="debounce(fetchChatConversations, 300)()"
+                                        style="background: transparent; border: none; padding: 0; color: #fff; font-size: 0.85rem; width: 100%; outline: none;">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Table of Conversations -->
+                        <div class="table-container"
+                            style="background: rgba(10, 8, 20, 0.2); border: 1px solid var(--card-border); border-radius: 12px; min-height: 250px; max-height: 380px; overflow-y: auto;">
+                            <table class="recent-searches-table" style="font-size: 0.85rem; width: 100%;">
+                                <thead style="position: sticky; top: 0; z-index: 10; background: #13102a;">
+                                    <tr>
+                                        <th style="padding: 12px 15px; font-size: 0.75rem; width: 15%;">User</th>
+                                        <th style="padding: 12px 15px; font-size: 0.75rem; width: 45%;">Search Prompt
+                                        </th>
+                                        <th style="padding: 12px 15px; font-size: 0.75rem; width: 10%;">Credits</th>
+                                        <th style="padding: 12px 15px; font-size: 0.75rem; width: 10%;">Status</th>
+                                        <th style="padding: 12px 15px; font-size: 0.75rem; width: 10%;">Time</th>
+                                        <th
+                                            style="padding: 12px 15px; text-align: right; font-size: 0.75rem; width: 10%;">
+                                            Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableChatHistoryList">
+                                    <tr>
+                                        <td colspan="6"
+                                            style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 30px;">
+                                            Loading conversations...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- SUB-PANEL 2: Content Moderation -->
+                    <div class="chat-mgmt-section" id="chat-mgmt-moderation"
+                        style="display: none; flex-direction: column; gap: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 15px;">
+                            <h3
+                                style="font-size: 1.15rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0;">
+                                <i class="fas fa-exclamation-triangle" style="color: #ef4444;"></i> Flagged Content Logs
+                            </h3>
+                            <span class="badge" id="flaggedCountsBadge"
+                                style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.25); font-weight: 600; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem;">0
+                                Flags Active</span>
+                        </div>
+
+                        <!-- Table of Flagged Items -->
+                        <div class="table-container"
+                            style="background: rgba(10, 8, 20, 0.2); border: 1px solid var(--card-border); border-radius: 12px; min-height: 250px; max-height: 380px; overflow-y: auto;">
+                            <table class="recent-searches-table" style="font-size: 0.85rem; width: 100%;">
+                                <thead style="position: sticky; top: 0; z-index: 10; background: #13102a;">
+                                    <tr>
+                                        <th style="padding: 12px 15px; font-size: 0.75rem; width: 15%;">User</th>
+                                        <th style="padding: 12px 15px; font-size: 0.75rem; width: 35%;">Flagged Query
+                                        </th>
+                                        <th style="padding: 12px 15px; font-size: 0.75rem; width: 20%;">Reason</th>
+                                        <th style="padding: 12px 15px; font-size: 0.75rem; width: 15%;">Timestamp</th>
+                                        <th
+                                            style="padding: 12px 15px; text-align: right; font-size: 0.75rem; width: 15%;">
+                                            Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableFlaggedList">
+                                    <tr>
+                                        <td colspan="5"
+                                            style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 30px;">
+                                            No flagged items found.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- SUB-PANEL 3: Query Analytics -->
+                    <div class="chat-mgmt-section" id="chat-mgmt-analytics"
+                        style="display: none; flex-direction: column; gap: 20px;">
+                        <!-- Stats Row inside chat panel -->
+                        <div class="stats-row" style="margin-bottom: 0;">
+                            <div class="stat-card">
+                                <div class="stat-icon"
+                                    style="color: #667eea; background: rgba(102, 126, 234, 0.1); border-color: rgba(102, 126, 234, 0.2);">
+                                    <i class="fas fa-search"></i></div>
+                                <div class="stat-info">
+                                    <span class="stat-label">Total AI Queries</span>
+                                    <span class="stat-value" id="chatAnalyticsTotal">0</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"
+                                    style="color: #ef4444; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2);">
+                                    <i class="fas fa-exclamation-triangle"></i></div>
+                                <div class="stat-info">
+                                    <span class="stat-label">Flagged Queries</span>
+                                    <span class="stat-value" id="chatAnalyticsFlagged">0</span>
+                                </div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="stat-icon"
+                                    style="color: #fbbf24; background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.2);">
+                                    <i class="fas fa-text-width"></i></div>
+                                <div class="stat-info">
+                                    <span class="stat-label">Avg Query Length</span>
+                                    <span class="stat-value" id="chatAnalyticsAvgLen">0</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Details Grid -->
+                        <div
+                            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+                            <!-- Top Keywords -->
+                            <div class="glass-card"
+                                style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                                <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 5px;"><i
+                                        class="fas fa-tags" style="color: #fbbf24; margin-right: 8px;"></i> Popular
+                                    Search Keywords</h3>
+                                <div id="analyticsKeywordsList"
+                                    style="display: flex; flex-wrap: wrap; gap: 8px; max-height: 180px; overflow-y: auto; padding: 5px;">
+                                    <span style="color: var(--text-secondary); font-style: italic;">No query data to
+                                        analyze.</span>
+                                </div>
+                            </div>
+
+                            <!-- Most Active Users -->
+                            <div class="glass-card"
+                                style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                                <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 5px;"><i
+                                        class="fas fa-users" style="color: #667eea; margin-right: 8px;"></i> Most Active
+                                    Users</h3>
+                                <div class="table-container"
+                                    style="background: transparent; border: none; min-height: unset; max-height: 180px; overflow-y: auto; margin-top: -10px;">
+                                    <table class="recent-searches-table" style="font-size: 0.85rem; width: 100%;">
+                                        <thead>
+                                            <tr>
+                                                <th style="padding: 8px 10px; font-size: 0.7rem;">User</th>
+                                                <th style="padding: 8px 10px; font-size: 0.7rem;">Queries</th>
+                                                <th style="padding: 8px 10px; font-size: 0.7rem;">Spent</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tableActiveUsersList">
+                                            <tr>
+                                                <td colspan="3"
+                                                    style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 20px;">
+                                                    No user activity yet.</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. Analytics -->
+                <div class="dashboard-panel" id="panel-analytics" style="padding: 20px; gap: 25px;">
+                    <div class="dashboard-welcome" style="margin-bottom: 5px;">
+                        <h2>Analytics</h2>
+                        <p>Track request rates, token usage costs, and system usage metrics.</p>
+                    </div>
+
+                    <!-- Summary Stat Cards Row -->
+                    <div class="stats-row" style="margin-bottom: 0;">
+                        <!-- Searches Today -->
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="color: #667eea; background: rgba(102, 126, 234, 0.1); border-color: rgba(102, 126, 234, 0.2);">
+                                <i class="fas fa-search"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Searches Today</span>
+                                <span class="stat-value" id="analyticsSearchesToday">0</span>
+                            </div>
+                        </div>
+                        <!-- Avg Response Time -->
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="color: #10b981; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);">
+                                <i class="fas fa-bolt"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Avg Response Time</span>
+                                <span class="stat-value" id="analyticsAvgResponse">0<span
+                                        style="font-size: 0.7em; opacity: 0.6;">ms</span></span>
+                            </div>
+                        </div>
+                        <!-- Total Tokens -->
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="color: #fbbf24; background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.2);">
+                                <i class="fas fa-code"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Est. Tokens Used</span>
+                                <span class="stat-value" id="analyticsTotalTokens">0</span>
+                            </div>
+                        </div>
+                        <!-- Est. API Cost -->
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="color: #f43f5e; background: rgba(244, 63, 94, 0.1); border-color: rgba(244, 63, 94, 0.2);">
+                                <i class="fas fa-dollar-sign"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Est. API Cost</span>
+                                <span class="stat-value" id="analyticsEstCost">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Date Range Toggle -->
+                    <div
+                        style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <h3
+                            style="font-size: 1.15rem; font-weight: 600; color: #fff; display: flex; align-items: center; gap: 8px; margin: 0;">
+                            <i class="fas fa-chart-area" style="color: #fbbf24;"></i> Metrics Overview
+                        </h3>
+                        <div class="auth-tabs" style="max-width: 280px; margin: 0;">
+                            <button class="auth-tab" id="rangeBtn7" onclick="switchAnalyticsRange(7)">7 Days</button>
+                            <button class="auth-tab active" id="rangeBtn14" onclick="switchAnalyticsRange(14)">14
+                                Days</button>
+                            <button class="auth-tab" id="rangeBtn30" onclick="switchAnalyticsRange(30)">30 Days</button>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row 1: Daily Search Volume + Avg Response Time -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                        <!-- Daily Search Volume -->
+                        <div class="glass-card"
+                            style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                            <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 5px;"><i
+                                    class="fas fa-chart-line" style="color: #667eea; margin-right: 8px;"></i> Daily
+                                Search Volume</h3>
+                            <div style="height: 220px; position: relative;">
+                                <canvas id="chartDailySearches"></canvas>
+                            </div>
+                        </div>
+                        <!-- Average Response Time -->
+                        <div class="glass-card"
+                            style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                            <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 5px;"><i
+                                    class="fas fa-stopwatch" style="color: #10b981; margin-right: 8px;"></i> Avg
+                                Response Time <span
+                                    style="font-size: 0.7em; font-weight: 400; color: var(--text-secondary);">(estimated)</span>
+                            </h3>
+                            <div style="height: 220px; position: relative;">
+                                <canvas id="chartResponseTimes"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row 2: Token Usage & Cost + Hourly Activity -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                        <!-- Token Usage & Cost -->
+                        <div class="glass-card"
+                            style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                            <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 5px;"><i
+                                    class="fas fa-coins" style="color: #fbbf24; margin-right: 8px;"></i> Token Usage &
+                                Cost <span
+                                    style="font-size: 0.7em; font-weight: 400; color: var(--text-secondary);">(estimated)</span>
+                            </h3>
+                            <div style="height: 220px; position: relative;">
+                                <canvas id="chartTokenCost"></canvas>
+                            </div>
+                        </div>
+                        <!-- Hourly Activity Today -->
+                        <div class="glass-card"
+                            style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                            <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 5px;"><i
+                                    class="fas fa-clock" style="color: #a78bfa; margin-right: 8px;"></i> Hourly Activity
+                                Today</h3>
+                            <div style="height: 220px; position: relative;">
+                                <canvas id="chartHourlyActivity"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. Feedback -->
+                <div class="dashboard-panel" id="panel-feedback" style="padding: 20px; gap: 25px;">
+                    <div class="dashboard-welcome" style="margin-bottom: 5px;">
+                        <h2>Feedback</h2>
+                        <p>View user ratings, suggestions, and feature requests.</p>
+                    </div>
+
+                    <!-- Summary Stat Cards -->
+                    <div class="stats-row" style="margin-bottom: 0;">
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="color: #10b981; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.2);">
+                                <i class="fas fa-thumbs-up"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Thumbs Up</span>
+                                <span class="stat-value" id="feedbackThumbsUp">0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="color: #f43f5e; background: rgba(244, 63, 94, 0.1); border-color: rgba(244, 63, 94, 0.2);">
+                                <i class="fas fa-thumbs-down"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Thumbs Down</span>
+                                <span class="stat-value" id="feedbackThumbsDown">0</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="color: #fbbf24; background: rgba(251, 191, 36, 0.1); border-color: rgba(251, 191, 36, 0.2);">
+                                <i class="fas fa-smile"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Satisfaction</span>
+                                <span class="stat-value" id="feedbackSatisfaction">0<span
+                                        style="font-size: 0.7em; opacity: 0.6;">%</span></span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"
+                                style="color: #667eea; background: rgba(102, 126, 234, 0.1); border-color: rgba(102, 126, 234, 0.2);">
+                                <i class="fas fa-envelope-open-text"></i></div>
+                            <div class="stat-info">
+                                <span class="stat-label">Pending Feedback</span>
+                                <span class="stat-value" id="feedbackPending">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sub-tabs -->
+                    <div class="auth-tabs" style="max-width: 480px; margin-bottom: 5px;">
+                        <button class="auth-tab active" id="tabFeedbackResponses"
+                            onclick="switchFeedbackTab('responses')">Response Ratings</button>
+                        <button class="auth-tab" id="tabFeedbackGeneral" onclick="switchFeedbackTab('general')">General
+                            Feedback</button>
+                    </div>
+
+                    <!-- SUB-PANEL 1: Response Ratings -->
+                    <div class="feedback-section active" id="feedback-responses"
+                        style="display: flex; flex-direction: column; gap: 20px;">
+                        <div style="display: grid; grid-template-columns: 1fr 220px; gap: 20px; align-items: start;">
+                            <!-- Ratings Table -->
+                            <div class="glass-card"
+                                style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                                <div
+                                    style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                    <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff; margin: 0;"><i
+                                            class="fas fa-star" style="color: #fbbf24; margin-right: 8px;"></i> AI
+                                        Response Ratings</h3>
+                                    <div style="display: flex; gap: 6px;">
+                                        <button class="auth-tab active" id="filterRatingAll"
+                                            onclick="filterResponseRatings('all')"
+                                            style="padding: 5px 12px; font-size: 0.75rem; min-width: auto;">All</button>
+                                        <button class="auth-tab" id="filterRatingUp"
+                                            onclick="filterResponseRatings('up')"
+                                            style="padding: 5px 12px; font-size: 0.75rem; min-width: auto;"><i
+                                                class="fas fa-thumbs-up"></i> Up</button>
+                                        <button class="auth-tab" id="filterRatingDown"
+                                            onclick="filterResponseRatings('down')"
+                                            style="padding: 5px 12px; font-size: 0.75rem; min-width: auto;"><i
+                                                class="fas fa-thumbs-down"></i> Down</button>
+                                    </div>
+                                </div>
+                                <div class="table-container"
+                                    style="background: rgba(10, 8, 20, 0.2); border: 1px solid var(--card-border); border-radius: 12px; min-height: 200px; max-height: 350px; overflow-y: auto;">
+                                    <table class="recent-searches-table" style="font-size: 0.85rem; width: 100%;">
+                                        <thead style="position: sticky; top: 0; z-index: 10; background: #13102a;">
+                                            <tr>
+                                                <th style="padding: 10px 12px; font-size: 0.7rem;">User</th>
+                                                <th style="padding: 10px 12px; font-size: 0.7rem;">Search Query</th>
+                                                <th style="padding: 10px 12px; font-size: 0.7rem;">Rating</th>
+                                                <th style="padding: 10px 12px; font-size: 0.7rem;">Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="tableResponseRatings">
+                                            <tr>
+                                                <td colspan="4"
+                                                    style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 30px;">
+                                                    Loading ratings...</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <!-- Satisfaction Donut Chart -->
+                            <div class="glass-card"
+                                style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px; align-items: center;">
+                                <h3 style="font-size: 1rem; font-weight: 600; color: #fff; text-align: center;"><i
+                                        class="fas fa-chart-pie" style="color: #fbbf24; margin-right: 6px;"></i>
+                                    Satisfaction</h3>
+                                <div style="width: 180px; height: 180px; position: relative;">
+                                    <canvas id="chartSatisfaction"></canvas>
+                                </div>
+                                <div id="satisfactionLabel"
+                                    style="font-size: 0.85rem; color: var(--text-secondary); text-align: center;">No
+                                    data yet</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUB-PANEL 2: General Feedback -->
+                    <div class="feedback-section" id="feedback-general"
+                        style="display: none; flex-direction: column; gap: 20px;">
+                        <div class="glass-card"
+                            style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 15px;">
+                            <div
+                                style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff; margin: 0;"><i
+                                        class="fas fa-inbox" style="color: #667eea; margin-right: 8px;"></i> User
+                                    Feedback Inbox</h3>
+                                <div style="display: flex; gap: 6px;">
+                                    <button class="auth-tab active" id="filterFbAll"
+                                        onclick="filterGeneralFeedback('all')"
+                                        style="padding: 5px 12px; font-size: 0.75rem; min-width: auto;">All</button>
+                                    <button class="auth-tab" id="filterFbNew" onclick="filterGeneralFeedback('new')"
+                                        style="padding: 5px 12px; font-size: 0.75rem; min-width: auto;">New</button>
+                                    <button class="auth-tab" id="filterFbReviewed"
+                                        onclick="filterGeneralFeedback('reviewed')"
+                                        style="padding: 5px 12px; font-size: 0.75rem; min-width: auto;">Reviewed</button>
+                                    <button class="auth-tab" id="filterFbResolved"
+                                        onclick="filterGeneralFeedback('resolved')"
+                                        style="padding: 5px 12px; font-size: 0.75rem; min-width: auto;">Resolved</button>
+                                </div>
+                            </div>
+                            <div class="table-container"
+                                style="background: rgba(10, 8, 20, 0.2); border: 1px solid var(--card-border); border-radius: 12px; min-height: 250px; max-height: 400px; overflow-y: auto;">
+                                <table class="recent-searches-table" style="font-size: 0.85rem; width: 100%;">
+                                    <thead style="position: sticky; top: 0; z-index: 10; background: #13102a;">
+                                        <tr>
+                                            <th style="padding: 10px 12px; font-size: 0.7rem;">User</th>
+                                            <th style="padding: 10px 12px; font-size: 0.7rem;">Category</th>
+                                            <th style="padding: 10px 12px; font-size: 0.7rem;">Message</th>
+                                            <th style="padding: 10px 12px; font-size: 0.7rem;">Status</th>
+                                            <th style="padding: 10px 12px; font-size: 0.7rem;">Date</th>
+                                            <th style="padding: 10px 12px; text-align: right; font-size: 0.7rem;">
+                                                Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableGeneralFeedback">
+                                        <tr>
+                                            <td colspan="6"
+                                                style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 30px;">
+                                                Loading feedback...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8. Security -->
+                <div class="dashboard-panel" id="panel-security" style="padding: 20px; gap: 20px;">
+                    <div class="dashboard-welcome" style="margin-bottom: 5px;">
+                        <h2>Security</h2>
+                        <p>Control firewall restrictions, IP blocklists, and login policies.</p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                        <!-- Access Policies -->
+                        <div class="glass-card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; gap: 15px;">
+                            <h3 style="font-size: 1.2rem; font-weight: 600; color: #fff;"><i class="fas fa-shield-alt" style="color: #fbbf24; margin-right: 8px;"></i> Access Policies</h3>
+                            <form id="securitySettingsForm" onsubmit="saveSecuritySettings(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                                <div class="form-group">
+                                    <label for="securityRateLimit" style="font-size: 0.85rem; color: var(--text-secondary);">Global Rate Limit (Requests per minute)</label>
+                                    <input type="number" id="securityRateLimit" min="1" style="width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; color: #fff; outline: none; margin-top: 5px;" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="securityMfaPolicy" style="font-size: 0.85rem; color: var(--text-secondary);">Multi-Factor Authentication Policy</label>
+                                    <select id="securityMfaPolicy" style="width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; color: #fff; outline: none; margin-top: 5px; cursor: pointer;">
+                                        <option value="disabled">Disabled</option>
+                                        <option value="optional">Optional for All</option>
+                                        <option value="required_admin">Required for Admins</option>
+                                        <option value="required_all">Required for All</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                                    <button type="submit" class="submit-btn" style="padding: 10px 20px; font-size: 0.9rem; background: var(--accent-gradient); border: none; border-radius: 10px; color: #fff; font-weight: 600; cursor: pointer;">Save Settings</button>
+                                </div>
+                            </form>
+                        </div>
+                        
+                        <!-- System Audit Logs -->
+                        <div class="glass-card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; gap: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <h3 style="font-size: 1.2rem; font-weight: 600; color: #fff;"><i class="fas fa-list-alt" style="color: #667eea; margin-right: 8px;"></i> System Audit Logs</h3>
+                                <button onclick="fetchAuditLogs()" style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer;" title="Refresh Logs"><i class="fas fa-sync-alt"></i></button>
+                            </div>
+                            <div class="table-container" style="background: rgba(10, 8, 20, 0.2); border: 1px solid var(--card-border); border-radius: 12px; min-height: 250px; max-height: 400px; overflow-y: auto;">
+                                <table class="recent-searches-table" style="font-size: 0.85rem; width: 100%;">
+                                    <thead style="position: sticky; top: 0; z-index: 10; background: #13102a;">
+                                        <tr>
+                                            <th style="padding: 10px 12px; font-size: 0.7rem;">Event Type</th>
+                                            <th style="padding: 10px 12px; font-size: 0.7rem;">User</th>
+                                            <th style="padding: 10px 12px; font-size: 0.7rem;">IP Address</th>
+                                            <th style="padding: 10px 12px; font-size: 0.7rem;">Details</th>
+                                            <th style="padding: 10px 12px; font-size: 0.7rem;">Date</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tableAuditLogs">
+                                        <tr>
+                                            <td colspan="5" style="text-align: center; color: var(--text-secondary); font-style: italic; padding: 30px;">Loading audit logs...</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 9. System Settings -->
+                <div class="dashboard-panel" id="panel-system" style="padding: 20px; gap: 20px;">
+                    <div class="dashboard-welcome" style="margin-bottom: 5px;">
+                        <h2>System Settings</h2>
+                        <p>Configure server configurations, databases, and global app states.</p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                        
+                        <!-- Maintenance & Cache -->
+                        <div class="glass-card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; gap: 15px;">
+                            <h3 style="font-size: 1.2rem; font-weight: 600; color: #fff;"><i class="fas fa-server" style="color: #ef4444; margin-right: 8px;"></i> System State</h3>
+                            
+                            <form id="maintenanceForm" onsubmit="saveMaintenanceSettings(event)" style="display: flex; flex-direction: column; gap: 15px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <div class="form-group" style="display: flex; justify-content: space-between; align-items: center;">
+                                    <label for="maintenanceMode" style="font-size: 0.95rem; color: #fff;">Maintenance Mode</label>
+                                    <select id="maintenanceMode" style="padding: 8px 12px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 8px; color: #fff; outline: none; cursor: pointer;">
+                                        <option value="false">Disabled</option>
+                                        <option value="true">Enabled</option>
+                                    </select>
+                                </div>
+                                <div style="display: flex; justify-content: flex-end;">
+                                    <button type="submit" class="submit-btn" style="padding: 8px 16px; font-size: 0.85rem; background: var(--accent-gradient); border: none; border-radius: 8px; color: #fff; font-weight: 600; cursor: pointer;">Update State</button>
+                                </div>
+                            </form>
+
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <h4 style="font-size: 0.95rem; color: #fff; margin-bottom: 5px;">Performance</h4>
+                                <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">Clearing the cache will remove temporary compiled Python files to free up disk space and force recompilation.</p>
+                                <button onclick="clearSystemCache()" style="padding: 10px 16px; font-size: 0.85rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; color: #ef4444; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
+                                    <i class="fas fa-trash-alt"></i> Clear Temporary Cache
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Database Backup Settings -->
+                        <div class="glass-card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--card-border); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; gap: 15px;">
+                            <h3 style="font-size: 1.2rem; font-weight: 600; color: #fff;"><i class="fas fa-database" style="color: #10b981; margin-right: 8px;"></i> MySQL Backups</h3>
+                            <form id="backupSettingsForm" onsubmit="saveBackupSettings(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                                <div class="form-group">
+                                    <label for="backupFrequency" style="font-size: 0.85rem; color: var(--text-secondary);">Automated Backup Frequency</label>
+                                    <select id="backupFrequency" style="width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; color: #fff; outline: none; margin-top: 5px; cursor: pointer;">
+                                        <option value="never">Never (Manual Only)</option>
+                                        <option value="daily">Daily</option>
+                                        <option value="weekly">Weekly</option>
+                                        <option value="monthly">Monthly</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="backupRetention" style="font-size: 0.85rem; color: var(--text-secondary);">Retention Period (Days)</label>
+                                    <input type="number" id="backupRetention" min="1" max="365" style="width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; color: #fff; outline: none; margin-top: 5px;" required>
+                                </div>
+                                <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                                    <button type="submit" class="submit-btn" style="padding: 10px 20px; font-size: 0.9rem; background: linear-gradient(135deg, #10b981, #059669); border: none; border-radius: 10px; color: #fff; font-weight: 600; cursor: pointer;">Save Backup Config</button>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- 10. Logs -->
+                <div class="dashboard-panel" id="panel-logs" style="padding: 20px; height: 100%;">
+                    <div style="display: flex; flex-direction: column; gap: 20px; height: 100%;">
+                        <div class="dashboard-welcome" style="margin-bottom: 5px;">
+                            <h2>Live Server Logs</h2>
+                            <p>Real-time streaming Flask logs, connection traces, query execution reports, and debug exceptions.</p>
+                        </div>
+
+                        <div class="glass-card" style="background: rgba(10, 8, 20, 0.8); border: 1px solid var(--card-border); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; flex-grow: 1; min-height: 400px; gap: 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                                <h3 style="font-size: 1.1rem; font-weight: 600; color: #fff; font-family: monospace;">
+                                    <i class="fas fa-terminal" style="color: #4ade80; margin-right: 8px;"></i> app.log
+                                </h3>
+                                <div style="display: flex; gap: 10px;">
+                                    <button onclick="toggleLogAutoScroll()" id="btnLogAutoScroll" style="padding: 6px 12px; font-size: 0.8rem; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; color: #fff; cursor: pointer; transition: all 0.2s;">
+                                        <i class="fas fa-pause"></i> Pause
+                                    </button>
+                                    <button onclick="clearLogViewer()" style="padding: 6px 12px; font-size: 0.8rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 6px; color: #ef4444; cursor: pointer; transition: all 0.2s;">
+                                        <i class="fas fa-trash-alt"></i> Clear Display
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="logViewerContainer" style="flex-grow: 1; overflow-y: auto; font-family: 'Courier New', Courier, monospace; font-size: 0.85rem; color: #d1d5db; line-height: 1.5; padding-top: 10px; padding-right: 10px; max-height: 60vh;">
+                                <div id="logViewerContent" style="white-space: pre-wrap; word-break: break-all;">Loading live logs...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- MODALS DIALOGS OVERLAYS -->
+    <div class="modal-overlay" id="adminModalOverlay"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(10, 8, 20, 0.85); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); z-index: 2000; justify-content: center; align-items: center; padding: 20px;">
+
+        <!-- 1. Create User Modal -->
+        <div class="glass-card modal-card" id="modalCreateUser"
+            style="display: none; width: 100%; max-width: 450px; padding: 30px; border-radius: 20px; background: rgba(22, 20, 38, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: var(--card-glow); flex-direction: column; gap: 20px; animation: fadeIn 0.3s ease;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 15px;">
+                <h3
+                    style="color: #fff; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 8px; margin: 0;">
+                    <i class="fas fa-user-plus" style="color: #fbbf24;"></i> Add New User</h3>
+                <button onclick="closeAdminModal()"
+                    style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.1rem;"><i
+                        class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="handleCreateUserForm(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="form-group">
+                    <label for="createUsername">Username</label>
+                    <input type="text" id="createUsername" placeholder="Enter username" style="padding-left: 15px;"
+                        required>
+                </div>
+                <div class="form-group">
+                    <label for="createEmail">Email Address</label>
+                    <input type="email" id="createEmail" placeholder="Enter email" style="padding-left: 15px;" required>
+                </div>
+                <div class="form-group">
+                    <label for="createPassword">Password</label>
+                    <input type="password" id="createPassword" placeholder="Minimum 6 characters"
+                        style="padding-left: 15px;" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="createRole">Role</label>
+                        <select id="createRole"
+                            style="width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; color: #fff; outline: none; cursor: pointer;">
+                            <option value="user" selected>User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="createCredits">Starting Credits</label>
+                        <input type="number" id="createCredits" value="100" min="0"
+                            style="padding: 12px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; color: #fff; outline: none;"
+                            required>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+                    <button type="button" onclick="closeAdminModal()" class="logout-btn"
+                        style="padding: 10px 18px; font-size: 0.9rem;">Cancel</button>
+                    <button type="submit" class="submit-btn"
+                        style="padding: 10px 22px; font-size: 0.9rem; background: var(--accent-gradient);">Create
+                        User</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 2. Edit User Modal -->
+        <div class="glass-card modal-card" id="modalEditUser"
+            style="display: none; width: 100%; max-width: 450px; padding: 30px; border-radius: 20px; background: rgba(22, 20, 38, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: var(--card-glow); flex-direction: column; gap: 20px; animation: fadeIn 0.3s ease;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 15px;">
+                <h3
+                    style="color: #fff; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 8px; margin: 0;">
+                    <i class="fas fa-edit" style="color: #667eea;"></i> Edit User Account</h3>
+                <button onclick="closeAdminModal()"
+                    style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.1rem;"><i
+                        class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="handleEditUserForm(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                <input type="hidden" id="editUserId">
+                <div class="form-group">
+                    <label for="editUsername">Username</label>
+                    <input type="text" id="editUsername" style="padding-left: 15px;" required>
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">Email Address</label>
+                    <input type="email" id="editEmail" style="padding-left: 15px;" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <div class="form-group">
+                        <label for="editRole">Role</label>
+                        <select id="editRole"
+                            style="width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; color: #fff; outline: none; cursor: pointer;">
+                            <option value="user">User</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCredits">Credits Balance</label>
+                        <input type="number" id="editCredits" min="0"
+                            style="padding: 12px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; color: #fff; outline: none;"
+                            required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="editStatus">Account Status</label>
+                    <select id="editStatus"
+                        style="width: 100%; padding: 12px; background: var(--input-bg); border: 1px solid var(--input-border); border-radius: 12px; color: #fff; outline: none; cursor: pointer;">
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+                    <button type="button" onclick="closeAdminModal()" class="logout-btn"
+                        style="padding: 10px 18px; font-size: 0.9rem;">Cancel</button>
+                    <button type="submit" class="submit-btn"
+                        style="padding: 10px 22px; font-size: 0.9rem; background: var(--accent-gradient);">Save
+                        Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 3. Reset Password Modal -->
+        <div class="glass-card modal-card" id="modalResetPassword"
+            style="display: none; width: 100%; max-width: 420px; padding: 30px; border-radius: 20px; background: rgba(22, 20, 38, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: var(--card-glow); flex-direction: column; gap: 20px; animation: fadeIn 0.3s ease;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 15px;">
+                <h3
+                    style="color: #fff; font-size: 1.2rem; font-weight: 600; display: flex; align-items: center; gap: 8px; margin: 0;">
+                    <i class="fas fa-key" style="color: #f43f5e;"></i> Reset Password</h3>
+                <button onclick="closeAdminModal()"
+                    style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.1rem;"><i
+                        class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="handleResetPasswordForm(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                <input type="hidden" id="resetPasswordUserId">
+                <div class="form-group">
+                    <label style="color: var(--text-secondary); font-size: 0.85rem;">Resetting password for user:
+                        <strong id="resetPasswordTargetUser" style="color: #fff;">-</strong></label>
+                </div>
+                <div class="form-group">
+                    <label for="resetNewPassword">New Password</label>
+                    <input type="password" id="resetNewPassword" placeholder="Minimum 6 characters"
+                        style="padding-left: 15px;" required>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+                    <button type="button" onclick="closeAdminModal()" class="logout-btn"
+                        style="padding: 10px 18px; font-size: 0.9rem;">Cancel</button>
+                    <button type="submit" class="submit-btn"
+                        style="padding: 10px 22px; font-size: 0.9rem; background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%); box-shadow: 0 0 15px rgba(244, 63, 94, 0.35);">Reset
+                        Password</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 4. Update API Key Modal -->
+        <div class="glass-card modal-card" id="modalApiKey"
+            style="display: none; width: 100%; max-width: 480px; padding: 30px; border-radius: 20px; background: rgba(22, 20, 38, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: var(--card-glow); flex-direction: column; gap: 20px; animation: fadeIn 0.3s ease;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 15px;">
+                <h3
+                    style="color: #fff; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 8px; margin: 0;">
+                    <i class="fas fa-key" style="color: #fbbf24;"></i> Update API Key</h3>
+                <button onclick="closeAdminModal()"
+                    style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.1rem;"><i
+                        class="fas fa-times"></i></button>
+            </div>
+            <form onsubmit="handleApiKeyForm(event)" style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="form-group">
+                    <label for="apiKeyInput">API Key</label>
+                    <input type="text" id="apiKeyInput" placeholder="Paste your API key (gsk_, sk-, AIzaSy...)"
+                        style="padding-left: 15px; font-family: monospace; font-size: 0.85rem;" required>
+                </div>
+                <div
+                    style="background: rgba(10, 8, 20, 0.4); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 12px 14px;">
+                    <div style="font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px;">Auto-Detected
+                        Provider</div>
+                    <div id="apiKeyDetectedProvider" style="font-size: 0.95rem; font-weight: 600; color: #fff;">Enter a
+                        key above</div>
+                </div>
+                <div class="form-group">
+                    <label for="apiUrlInput">Custom Endpoint URL <span
+                            style="color: var(--text-secondary); font-weight: 400;">(optional)</span></label>
+                    <input type="url" id="apiUrlInput" placeholder="e.g. http://localhost:11434/api/generate"
+                        style="padding-left: 15px; font-family: monospace; font-size: 0.85rem;">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px;">
+                    <button type="button" onclick="closeAdminModal()" class="logout-btn"
+                        style="padding: 10px 18px; font-size: 0.9rem;">Cancel</button>
+                    <button type="submit" class="submit-btn"
+                        style="padding: 10px 22px; font-size: 0.9rem; background: var(--accent-gradient);">Save
+                        Configuration</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- 5. View Conversation Modal -->
+        <div class="glass-card modal-card" id="modalViewConversation"
+            style="display: none; width: 100%; max-width: 600px; padding: 30px; border-radius: 20px; background: rgba(22, 20, 38, 0.95); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: var(--card-glow); flex-direction: column; gap: 20px; animation: fadeIn 0.3s ease;">
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding-bottom: 15px;">
+                <h3
+                    style="color: #fff; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 8px; margin: 0;">
+                    <i class="fas fa-comment-alt" style="color: #fbbf24;"></i> Conversation Details</h3>
+                <button onclick="closeAdminModal()"
+                    style="background: transparent; border: none; color: var(--text-secondary); cursor: pointer; font-size: 1.1rem;"><i
+                        class="fas fa-times"></i></button>
+            </div>
+
+            <div
+                style="font-size: 0.85rem; color: var(--text-secondary); display: flex; gap: 15px; background: rgba(10, 8, 20, 0.4); padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05);">
+                <div><strong>User:</strong> <span id="convModalUser" style="color: #fff;">-</span></div>
+                <div><strong>Email:</strong> <span id="convModalEmail" style="color: #fff;">-</span></div>
+                <div><strong>Date:</strong> <span id="convModalDate" style="color: #fff;">-</span></div>
+            </div>
+
+            <div id="convModalMessages"
+                style="display: flex; flex-direction: column; gap: 15px; max-height: 300px; overflow-y: auto; padding: 15px; background: rgba(10, 8, 20, 0.2); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; min-height: 150px;">
+                <!-- Conversation bubbles loaded dynamically -->
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" onclick="closeAdminModal()" class="submit-btn"
+                    style="padding: 10px 22px; font-size: 0.9rem; background: var(--accent-gradient);">Close</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Application Scripts -->
+    <script src="/admin/static/admin.js"></script>
+</body>
+
+</html>

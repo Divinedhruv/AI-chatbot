@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Aetheris AI - Authentication (Reference Template)</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&amp;family=Geist:wght@500;600;700&amp;family=JetBrains+Mono:wght@500&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    <style>
+        body {
+            background-color: #050505;
+            color: #e5e2e1;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .auth-input {
+            background: rgba(255, 255, 255, 0.02);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .auth-input:focus {
+            background: rgba(255, 255, 255, 0.04);
+            border-color: #8B5CF6;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3), 0 0 15px rgba(139, 92, 246, 0.2);
+            outline: none;
+        }
+
+        .btn-primary-gradient {
+            background: linear-gradient(135deg, #8B5CF6 0%, #D946EF 100%);
+            box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary-gradient:hover {
+            box-shadow: 0 4px 25px rgba(139, 92, 246, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .nebula-glow {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(139, 92, 246, 0.15) 0%, rgba(217, 70, 239, 0.05) 50%, transparent 100%);
+            filter: blur(80px);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .tab-indicator {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+
+        .hover-glow:hover {
+            text-shadow: 0 0 8px rgba(208, 188, 255, 0.8);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md text-body-md antialiased">
+    <!-- Atmospheric Background -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none">
+        <div class="nebula-glow top-[-10%] right-[-10%]" id="glow-1"></div>
+        <div class="nebula-glow bottom-[-10%] left-[-10%]" id="glow-2"></div>
+    </div>
+
+    <!-- TopNavBar -->
+    <header class="fixed top-0 w-full backdrop-blur-md bg-white/3 z-50">
+        <div class="flex justify-between items-center px-[64px] py-6 w-full max-w-[1440px] mx-auto">
+            <div class="text-2xl font-bold tracking-tighter text-on-surface">
+                Aetheris AI
+            </div>
+            <nav class="hidden md:flex gap-6 items-center">
+                <a class="font-mono text-xs text-on-surface-variant hover:text-on-surface transition-colors" href="#">Documentation</a>
+                <a class="font-mono text-xs text-on-surface-variant hover:text-on-surface transition-colors" href="#">Support</a>
+                <a class="font-mono text-xs bg-white/10 px-4 py-2 rounded-lg text-primary border border-white/5 hover:bg-white/20 transition-all" href="#">Enterprise</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow flex items-center justify-center pt-32 pb-24 px-5">
+        <div class="glass-card w-full max-w-[480px] p-8 md:p-10 rounded-[2rem] relative overflow-hidden">
+            <!-- Auth Header & Tabs -->
+            <div class="mb-10">
+                <h1 class="text-3xl text-center mb-8 text-on-surface font-semibold">Welcome Back</h1>
+                <div class="relative flex bg-white/5 rounded-full p-1 border border-white/5">
+                    <div class="tab-indicator absolute h-[calc(100%-8px)] w-[calc(50%-4px)] bg-white/10 rounded-full top-1 left-1 shadow-sm" id="tab-indicator"></div>
+                    <button class="relative z-10 flex-1 py-3 font-mono text-xs text-on-surface transition-all duration-300" onclick="switchTab('signin')">Sign In</button>
+                    <button class="relative z-10 flex-1 py-3 font-mono text-xs text-on-surface-variant hover:text-on-surface transition-all duration-300" onclick="switchTab('signup')">Sign Up</button>
+                </div>
+            </div>
+
+            <!-- Sign In Form -->
+            <form class="space-y-6" id="signin-form">
+                <div class="space-y-4">
+                    <!-- Email -->
+                    <div class="group">
+                        <label class="block font-mono text-[12px] uppercase tracking-widest text-on-surface-variant mb-2 ml-1">Email Address</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">mail</span>
+                            <input class="auth-input w-full pl-12 pr-4 py-4 rounded-xl border border-white/10 text-on-surface placeholder:text-on-surface-variant/40" placeholder="name@company.com" required type="email"/>
+                        </div>
+                    </div>
+                    <!-- Password -->
+                    <div class="group">
+                        <div class="flex justify-between items-center mb-2 ml-1">
+                            <label class="block font-mono text-[12px] uppercase tracking-widest text-on-surface-variant">Password</label>
+                            <a class="font-mono text-[10px] text-primary hover-glow transition-all" href="#">Forgot Password?</a>
+                        </div>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">lock</span>
+                            <input class="auth-input w-full pl-12 pr-4 py-4 rounded-xl border border-white/10 text-on-surface placeholder:text-on-surface-variant/40" placeholder="••••••••" required type="password"/>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-primary-gradient w-full py-4 rounded-xl text-lg text-white font-semibold" type="submit">
+                    Continue to Aetheris
+                </button>
+
+                <div class="relative flex items-center py-2">
+                    <div class="flex-grow border-t border-white/5"></div>
+                    <span class="flex-shrink mx-4 font-mono text-[10px] text-on-surface-variant/50 uppercase">Or Continue With</span>
+                    <div class="flex-grow border-t border-white/5"></div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <button class="flex items-center justify-center gap-2 py-3 px-4 glass-card rounded-xl hover:bg-white/10 transition-colors border border-white/5" type="button">
+                        <span class="font-mono text-[12px]">Google</span>
+                    </button>
+                    <button class="flex items-center justify-center gap-2 py-3 px-4 glass-card rounded-xl hover:bg-white/10 transition-colors border border-white/5" type="button">
+                        <span class="font-mono text-[12px]">GitHub</span>
+                    </button>
+                </div>
+            </form>
+
+            <!-- Sign Up Form (Hidden by default) -->
+            <form class="hidden space-y-6" id="signup-form">
+                <div class="space-y-4">
+                    <!-- Name -->
+                    <div class="group">
+                        <label class="block font-mono text-[12px] uppercase tracking-widest text-on-surface-variant mb-2 ml-1">Full Name</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">person</span>
+                            <input class="auth-input w-full pl-12 pr-4 py-4 rounded-xl border border-white/10 text-on-surface placeholder:text-on-surface-variant/40" placeholder="Janus Aetheris" required type="text"/>
+                        </div>
+                    </div>
+                    <!-- Email -->
+                    <div class="group">
+                        <label class="block font-mono text-[12px] uppercase tracking-widest text-on-surface-variant mb-2 ml-1">Work Email</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">mail</span>
+                            <input class="auth-input w-full pl-12 pr-4 py-4 rounded-xl border border-white/10 text-on-surface placeholder:text-on-surface-variant/40" placeholder="name@company.com" required type="email"/>
+                        </div>
+                    </div>
+                    <!-- Password -->
+                    <div class="group">
+                        <label class="block font-mono text-[12px] uppercase tracking-widest text-on-surface-variant mb-2 ml-1">Create Password</label>
+                        <div class="relative">
+                            <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant group-focus-within:text-primary transition-colors">lock</span>
+                            <input class="auth-input w-full pl-12 pr-4 py-4 rounded-xl border border-white/10 text-on-surface placeholder:text-on-surface-variant/40" placeholder="••••••••" required type="password"/>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-3 px-1">
+                    <input class="mt-1 bg-white/5 border-white/10 rounded text-primary focus:ring-primary/20" type="checkbox"/>
+                    <p class="font-mono text-[10px] text-on-surface-variant leading-relaxed">
+                        I agree to the <a class="text-primary hover:underline" href="#">Terms of Service</a> and <a class="text-primary hover:underline" href="#">Privacy Policy</a>.
+                    </p>
+                </div>
+
+                <button class="btn-primary-gradient w-full py-4 rounded-xl text-lg text-white font-semibold" type="submit">
+                    Create Free Account
+                </button>
+            </form>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full py-12 border-t border-white/5 bg-transparent">
+        <div class="flex flex-col md:flex-row justify-between items-center px-[64px] gap-6 w-full max-w-[1440px] mx-auto">
+            <div class="font-mono text-xs text-on-surface-variant">
+                © 2024 Aetheris Systems. All rights reserved.
+            </div>
+            <div class="flex gap-6 items-center">
+                <a class="font-mono text-xs text-on-surface-variant hover:text-tertiary transition-colors" href="#">Privacy Policy</a>
+                <a class="font-mono text-xs text-on-surface-variant hover:text-tertiary transition-colors" href="#">Terms of Service</a>
+                <a class="font-mono text-xs text-on-surface-variant hover:text-tertiary transition-colors" href="#">API Status</a>
+                <a class="font-mono text-xs text-on-surface-variant hover:text-tertiary transition-colors" href="#">Contact</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function switchTab(type) {
+            const indicator = document.getElementById('tab-indicator');
+            const signinForm = document.getElementById('signin-form');
+            const signupForm = document.getElementById('signup-form');
+            const buttons = indicator.parentElement.querySelectorAll('button');
+            const headerText = document.querySelector('h1');
+
+            if (type === 'signup') {
+                indicator.style.transform = 'translateX(100%)';
+                signinForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                buttons[0].classList.replace('text-on-surface', 'text-on-surface-variant');
+                buttons[1].classList.replace('text-on-surface-variant', 'text-on-surface');
+                headerText.textContent = "Start Your Journey";
+            } else {
+                indicator.style.transform = 'translateX(0)';
+                signinForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                buttons[1].classList.replace('text-on-surface', 'text-on-surface-variant');
+                buttons[0].classList.replace('text-on-surface-variant', 'text-on-surface');
+                headerText.textContent = "Welcome Back";
+            }
+        }
+
+        // Lightweight atmospheric movement for glow effects
+        document.addEventListener('mousemove', (e) => {
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            const glow1 = document.getElementById('glow-1');
+            const glow2 = document.getElementById('glow-2');
+            
+            glow1.style.transform = `translate(${x * 50}px, ${y * 50}px)`;
+            glow2.style.transform = `translate(${-x * 50}px, ${-y * 50}px)`;
+        });
+    </script>
+</body>
+</html>
